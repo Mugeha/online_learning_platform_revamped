@@ -1,17 +1,18 @@
+// utils/sendEmail.js
 const nodemailer = require("nodemailer");
 
 const sendEmail = async (options) => {
   const transporter = nodemailer.createTransport({
-    host: process.env.MAIL_HOST, // From Mailtrap
-    port: process.env.MAIL_PORT,
+    host: "sandbox.smtp.mailtrap.io",
+    port: 2525,
     auth: {
-      user: process.env.MAIL_USER,
-      pass: process.env.MAIL_PASS
+      user: process.env.MAILTRAP_USER,
+      pass: process.env.MAILTRAP_PASS
     }
   });
 
   const mailOptions = {
-    from: '"Online Learning Platform" <no-reply@learning.com>',
+    from: '"Online Learning Platform" <no-reply@olp.com>',
     to: options.email,
     subject: options.subject,
     html: options.message

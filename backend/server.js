@@ -15,6 +15,8 @@ app.use(cors()); // Allow cross-origin requests
 app.use(express.json()); // Parse incoming JSON
 // Routes
 app.use("/api/auth", require("./routes/authRoutes"));
+app.use("/api/courses", require("./routes/courseRoutes"));
+app.use("/api/users", require("./routes/userRoutes"));
 
 
 // Basic route

@@ -30,13 +30,15 @@ export default function ForgotPasswordPage() {
       <div className="card">
         <h2>Reset password</h2>
 
-        {status === "sent" ? (
-          <div className="flow">
-            <p>We generated a password reset link. (In this demo it appears in the backend console.)</p>
-            <p className="muted">Open the link and follow the steps to create a new password.</p>
-            <a className="btn ghost" href="/login">Back to login</a>
-          </div>
-        ) : (
+       
+{status === "sent" ? (
+  <div className="flow">
+    <p>We generated a password reset link. Check your email for the link.</p>
+    <p className="muted">If you don’t see it, check your spam folder.</p>
+    <a className="btn ghost" href="/login">Back to login</a>
+  </div>
+) : (
+
           <form onSubmit={handleSubmit} className="auth-form">
             <label>
               <span>Email</span>
@@ -49,9 +51,6 @@ export default function ForgotPasswordPage() {
               {loading ? "Generating..." : "Send reset link"}
             </button>
 
-            <div className="muted">
-              You will receive a link in the server console for now (swap with a real email provider later).
-            </div>
           </form>
         )}
       </div>

@@ -18,8 +18,11 @@ export default function Home() {
             </>
           ) : (
             <>
-              <a className="btn" href="/login">Login</a>
+             <div className="space">
+                 <a className="btn" href="/login">Login</a>
+              
               <a className="btn ghost" href="/register">Sign up</a>
+             </div>
             </>
           )}
         </div>

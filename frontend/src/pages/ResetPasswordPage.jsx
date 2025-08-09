@@ -25,7 +25,7 @@ export default function ResetPasswordPage({ match }) {
       await resetPassword(token, { password: form.password });
       setStatus("ok");
     } catch (err) {
-      setError(err.message || "Reset failed");
+setError(err.response?.data?.message || err.message || "Password reset failed. Your link may have expired.");
       setStatus("error");
     } finally {
       setLoading(false);
@@ -39,7 +39,7 @@ export default function ResetPasswordPage({ match }) {
 
         {status === "ok" ? (
           <div className="flow">
-            <p>Your password was updated successfully.</p>
+<p className="success">Your password has been updated successfully. You can now log in with your new password.</p>
             <a className="btn" href="/login">Go to Login</a>
           </div>
         ) : (
