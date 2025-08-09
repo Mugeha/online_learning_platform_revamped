@@ -13,6 +13,9 @@ dotenv.config();
 // Middleware
 app.use(cors()); // Allow cross-origin requests
 app.use(express.json()); // Parse incoming JSON
+// Routes
+app.use("/api/auth", require("./routes/authRoutes"));
+
 
 // Basic route
 app.get("/", (req, res) => {
