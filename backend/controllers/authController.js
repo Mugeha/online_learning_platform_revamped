@@ -2,6 +2,8 @@ const User = require("../models/User");
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
 const nodemailer = require("nodemailer");
+const sendEmail = require("../utils/sendEmail");
+
 
 // Helper: generate JWT token
 const generateToken = (id) => {
@@ -70,19 +72,30 @@ const forgotPassword = async (req, res) => {
       return res.status(404).json({ message: "No user found with that email" });
     }
 
-    // Generate reset token
     const resetToken = user.getResetPasswordToken();
     await user.save();
 
-    // Create reset URL
-    const resetUrl = `http://localhost:3000/reset-password/${resetToken}`;
+    const resetUrl = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
 
-    // Simulate sending email (log it)
-    console.log(`📧 Password reset link: ${resetUrl}`);
+    const message = `
+      <h1>Password Reset Request</h1>
+      <p>You requested to reset your password. Click the link below to set a new password:</p>
+      <a href="${resetUrl}" target="_blank">Reset Password</a>
+      <p>This link will expire in 10 minutes.</p>
+    `;
 
-    res.json({ message: "Password reset link generated. Check console log." });
+    await sendEmail({
+      email: user.email,
+      subject: "Password Reset - Online Learning Platform",
+      message
+    });
+
+    res.json({ message: "Password reset link sent to your email." });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpire = undefined;
+    await user.save();
+    res.status(500).json({ message: "Email could not be sent" });
   }
 };
 

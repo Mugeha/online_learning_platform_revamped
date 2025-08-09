@@ -1,36 +1,9 @@
-/* Reset some browser defaults */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
+/* src/styles/global.css */
+@import "./auth.css";
 
-/* Define color variables */
-:root {
-  --primary-color: #4a90e2;
-  --secondary-color: #f5f7fa;
-  --text-color: #333;
-  --accent-color: #ff7f50;
-  --font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+.container { max-width: 1100px; margin: 0 auto; padding: 28px; }
+.site-header {
+  display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px;
 }
-
-body {
-  font-family: var(--font-family);
-  background-color: var(--secondary-color);
-  color: var(--text-color);
-}
-
-.app-container {
-  padding: 2rem;
-  text-align: center;
-}
-
-h1 {
-  color: var(--primary-color);
-  font-size: 2.5rem;
-  margin-bottom: 1rem;
-}
-
-p {
-  font-size: 1.2rem;
-}
+.site-header h1 { font-size: 1.25rem; letter-spacing: -0.02em; }
+.hero { padding: 28px; text-align: left; }
