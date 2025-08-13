@@ -37,11 +37,6 @@ const Home = () => {
           </p>
 
           <div className="home-buttons">
-            {user.isAdmin && (
-              <Link to="/admin-dashboard" className="btn btn-primary">
-                Admin Dashboard
-              </Link>
-            )}
             <Link to="/courses" className="btn btn-secondary">
               View Courses
             </Link>

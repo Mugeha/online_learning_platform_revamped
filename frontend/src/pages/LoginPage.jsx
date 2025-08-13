@@ -24,7 +24,7 @@ export default function LoginPage() {
       if (data.user?.role === "admin") {
         window.location.href = "/admin-dashboard";
       } else {
-        window.location.href = "/dashboard";
+        window.location.href = "/user-dashboard";
       }
         } catch (err) {
       setError(err.message || "Invalid credentials");

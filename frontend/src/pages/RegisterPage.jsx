@@ -31,8 +31,11 @@ export default function RegisterPage({ history }) {
       const data = await authRegister({ name: form.name, email: form.email, password: form.password });
       login(data); // save user & token
       // redirect to dashboard/home
-      window.location.href = "/";
-    } catch (err) {
+ if (data.user.role === "admin") {
+      window.location.href = "/admin-dashboard";
+    } else {
+      window.location.href = "/user-dashboard";
+    }    } catch (err) {
       setError(err.message || "Registration failed");
     } finally {
       setLoading(false);
