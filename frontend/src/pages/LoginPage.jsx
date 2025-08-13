@@ -20,8 +20,13 @@ export default function LoginPage() {
     try {
       const data = await authLogin(form);
       login(data);
-      window.location.href = "/";
-    } catch (err) {
+// role-based redirect
+      if (data.user?.role === "admin") {
+        window.location.href = "/admin-dashboard";
+      } else {
+        window.location.href = "/dashboard";
+      }
+        } catch (err) {
       setError(err.message || "Invalid credentials");
     } finally {
       setLoading(false);

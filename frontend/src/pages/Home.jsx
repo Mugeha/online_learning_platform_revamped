@@ -1,39 +1,70 @@
 // src/pages/Home.jsx
-import React, { useContext } from "react";
-import { AuthContext } from "../contexts/AuthContext";
+import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import axios from "axios";
 import "../styles/global.css";
+import "../styles/auth.css"; // for button styles
 
-export default function Home() {
-  const { user, logout } = useContext(AuthContext);
+const Home = () => {
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        if (!token) return;
+
+        const { data } = await axios.get("/api/users/profile", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        setUser(data.user);
+      } catch (error) {
+        console.error("Error fetching profile:", error);
+      }
+    };
+
+    fetchProfile();
+  }, []);
 
   return (
-    <div className="container">
-      <header className="site-header">
-        <h1>Online Learning Platform</h1>
-        <div>
-          {user ? (
-            <>
-              <span className="muted">Hi, {user.name}</span>
-              <button className="btn ghost" onClick={logout}>Logout</button>
-            </>
-          ) : (
-            <>
-             <div className="space">
-                 <a className="btn" href="/login">Login</a>
-              
-              <a className="btn ghost" href="/register">Sign up</a>
-             </div>
-            </>
-          )}
-        </div>
-      </header>
+    <div className="home-container">
+      {user ? (
+        <div className="home-content">
+          <h1 className="home-title">Welcome, {user.name} 👋</h1>
+          <p className="home-subtitle">
+            Glad to have you back! Choose where you want to go next.
+          </p>
 
-      <main>
-        <section className="hero card">
-          <h2>Learn skills to level up your career</h2>
-          <p className="muted">This demo focuses on auth. Next we'll add courses, instructors and enrollment flows.</p>
-        </section>
-      </main>
+          <div className="home-buttons">
+            {user.isAdmin && (
+              <Link to="/admin-dashboard" className="btn btn-primary">
+                Admin Dashboard
+              </Link>
+            )}
+            <Link to="/courses" className="btn btn-secondary">
+              View Courses
+            </Link>
+          </div>
+        </div>
+      ) : (
+        <div className="home-content">
+          <h1 className="home-title">Welcome to Our Platform</h1>
+          <p className="home-subtitle">
+            Join us to explore courses and learn new skills.
+          </p>
+          <div className="home-buttons">
+            <Link to="/login" className="btn btn-primary">
+              Login
+            </Link>
+            <Link to="/register" className="btn btn-secondary">
+              Register
+            </Link>
+          </div>
+        </div>
+      )}
     </div>
   );
-}
+};
+
+export default Home;
