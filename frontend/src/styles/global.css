@@ -45,3 +45,89 @@
 }
 
 /* Reuse existing .btn styles from auth.css for consistency */
+/* Admin Dashboard Styling */
+.admin-dashboard-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background: var(--background-light);
+  color: var(--text-dark);
+}
+
+.admin-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;
+  background: var(--primary-color);
+  color: white;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.logout-btn {
+  padding: 0.5rem 1rem;
+  background: var(--danger-color);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.admin-content {
+  flex: 1;
+  display: flex;
+  min-height: 0;
+}
+
+.admin-sidebar {
+  background: var(--background-dark);
+  color: white;
+  padding: 1rem;
+  width: 240px;
+  flex-shrink: 0;
+}
+
+.admin-sidebar ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.admin-sidebar li {
+  padding: 0.75rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.admin-sidebar li:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.admin-feature-view {
+  flex: 1;
+  padding: 2rem;
+  overflow-y: auto;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .admin-content {
+    flex-direction: column;
+  }
+
+  .admin-sidebar {
+    width: 100%;
+    display: flex;
+    overflow-x: auto;
+  }
+
+  .admin-sidebar ul {
+    display: flex;
+    gap: 1rem;
+  }
+
+  .admin-sidebar li {
+    white-space: nowrap;
+  }
+}
