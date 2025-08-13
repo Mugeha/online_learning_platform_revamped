@@ -21,6 +21,8 @@ const userSchema = new mongoose.Schema({
     type: Boolean,
     default: false // By default, new users are not admins
   },
+  enrolledCourses: [{ type: mongoose.Schema.Types.ObjectId, ref: "Course" }],
+
   resetPasswordToken: String,
   resetPasswordExpire: Date
 }, {
