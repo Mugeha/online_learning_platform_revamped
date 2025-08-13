@@ -131,3 +131,73 @@
     white-space: nowrap;
   }
 }
+/* Layout utility */
+.grid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+}
+
+/* Course cards */
+.course-card {
+  background: var(--card, #fff);
+  border-radius: var(--radius, 12px);
+  padding: 16px;
+  box-shadow: var(--shadow, 0 8px 30px rgba(34,36,50,.08));
+  border: 1px solid rgba(18, 18, 18, 0.03);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.course-card h3 { margin: 0; font-size: 1.05rem; }
+.course-meta { display: flex; gap: 10px; font-size: .85rem; color: var(--muted); }
+.course-actions { display: flex; gap: 10px; margin-top: 8px; }
+
+/* Progress bar */
+.progress {
+  width: 100%;
+  height: 10px;
+  background: rgba(0,0,0,0.06);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+  border-radius: 999px;
+}
+
+/* Top nav */
+.topnav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 18px;
+  padding: 10px 0;
+}
+.topnav-left, .topnav-right { display: flex; align-items: center; gap: 12px; }
+.brand { font-weight: 700; text-decoration: none; color: #0f172a; }
+.topnav-link { text-decoration: none; color: #374151; padding: 6px 10px; border-radius: 8px; }
+.topnav-link:hover { background: rgba(0,0,0,0.05); }
+.active-link { background: rgba(0,0,0,0.08); }
+
+/* Dark mode (non-invasive) */
+:root {
+  --background-light: #f6f8fb;
+  --text-primary: #0f172a;
+  --text-secondary: #6b7280;
+}
+body[data-theme="dark"] {
+  --bg: #0f1220;
+  --card: #14182b;
+  --text-primary: #e5e7eb;
+  --text-secondary: #9ca3af;
+  --muted: #9ca3af;
+  background: var(--bg);
+  color: var(--text-primary);
+}
+body[data-theme="dark"] .card,
+body[data-theme="dark"] .course-card { border-color: rgba(255,255,255,0.06); }
+body[data-theme="dark"] .topnav-link { color: var(--text-secondary); }
+body[data-theme="dark"] .brand { color: var(--text-primary); }
+
