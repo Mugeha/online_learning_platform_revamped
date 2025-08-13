@@ -10,6 +10,10 @@ import Home from "./pages/Home";
 import AdminDashboard from "./pages/AdminDashboard";
 import UserDashboard from "./pages/UserDashboard";
 
+import BrowseCourses from "./pages/BrowseCourses";
+import MyCourses from "./pages/MyCourses";
+import ProfilePage from "./pages/ProfilePage";
+
 import "./styles/global.css";
 
 // Protect routes for logged-in users
@@ -30,14 +34,14 @@ function App() {
     <AuthProvider>
       <Router>
         <Routes>
-          {/* Public */}
+          {/* Public Routes */}
           <Route path="/" element={<Home />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
 
-          {/* Protected */}
+          {/* Protected Routes */}
           <Route
             path="/user-dashboard"
             element={
@@ -46,6 +50,32 @@ function App() {
               </PrivateRoute>
             }
           />
+          <Route
+            path="/courses"
+            element={
+              <PrivateRoute>
+                <BrowseCourses />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/my-courses"
+            element={
+              <PrivateRoute>
+                <MyCourses />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/profile"
+            element={
+              <PrivateRoute>
+                <ProfilePage />
+              </PrivateRoute>
+            }
+          />
+
+          {/* Admin Only */}
           <Route
             path="/admin-dashboard"
             element={
