@@ -1,81 +1,89 @@
 // src/api.js
+import axios from "axios";
+
 const API_BASE = process.env.REACT_APP_API_URL || "http://localhost:5000/api";
 
-// Helper to check JWT expiration
+// --- Helper: check JWT expiration (defensive) ---
 function isTokenExpired(token) {
   try {
     const payload = JSON.parse(atob(token.split(".")[1]));
-    return payload.exp * 1000 < Date.now(); // true if expired
+    return payload.exp * 1000 < Date.now();
   } catch {
-    return true; // if token is invalid format
+    return true; // bad token format -> treat as expired
   }
 }
 
-async function request(path, options = {}) {
-  let token = localStorage.getItem("token");
+// --- Axios instance ---
+const API = axios.create({
+  baseURL: API_BASE,
+});
 
-  // If token exists but is expired → logout user
-  if (token && isTokenExpired(token)) {
-    localStorage.removeItem("token");
-    localStorage.removeItem("isAdmin");
-    window.location.href = "/login";
-    throw new Error("Session expired. Please log in again.");
+// --- Interceptors ---
+API.interceptors.request.use((req) => {
+  const token = localStorage.getItem("token");
+  if (token) {
+    // Auto-logout if token expired (client-side check)
+    if (isTokenExpired(token)) {
+      localStorage.removeItem("token");
+      localStorage.removeItem("isAdmin");
+      window.location.href = "/login";
+      throw new axios.Cancel("Session expired. Redirecting to login.");
+    }
+    req.headers.Authorization = `Bearer ${token}`;
   }
+  return req;
+});
 
-  const headers = {
-    "Content-Type": "application/json",
-    ...(options.headers || {}),
-    ...(token ? { Authorization: `Bearer ${token}` } : {})
-  };
-
-  const res = await fetch(`${API_BASE}${path}`, {
-    ...options,
-    headers,
-  });
-
-  const text = await res.text();
-  const data = text ? JSON.parse(text) : {};
-
-  // Auto-logout on 401 Unauthorized
-  if (res.status === 401) {
-    localStorage.removeItem("token");
-    localStorage.removeItem("isAdmin");
-    window.location.href = "/login";
-    throw new Error("Unauthorized. Please log in again.");
+API.interceptors.response.use(
+  (res) => res,
+  (err) => {
+    if (err?.response?.status === 401) {
+      localStorage.removeItem("token");
+      localStorage.removeItem("isAdmin");
+      window.location.href = "/login";
+    }
+    return Promise.reject(err);
   }
+);
 
-  if (!res.ok) {
-    const err = new Error(data.message || "API error");
-    err.status = res.status;
-    err.body = data;
-    throw err;
-  }
+// ========== Auth ==========
+export const authRegister = (body) => API.post("/auth/register", body).then(r => r.data);
+export const authLogin = (body) => API.post("/auth/login", body).then(r => r.data);
+export const forgotPassword = (body) => API.post("/auth/forgot-password", body).then(r => r.data);
+export const resetPassword = (token, body) =>
+  API.put(`/auth/reset-password/${token}`, body).then(r => r.data);
 
-  return data;
-}
+// ========== Courses (Public + User) ==========
+// Public
+export const getAllCourses = () => API.get("/courses").then(r => r.data);
+export const getCourseBySlug = (slug) => API.get(`/courses/${slug}`).then(r => r.data);
 
-// ================= Auth =================
-export const authRegister = (body) => request("/auth/register", { method: "POST", body: JSON.stringify(body) });
-export const authLogin = (body) => request("/auth/login", { method: "POST", body: JSON.stringify(body) });
-export const forgotPassword = (body) => request("/auth/forgot-password", { method: "POST", body: JSON.stringify(body) });
-export const resetPassword = (token, body) => request(`/auth/reset-password/${token}`, { method: "PUT", body: JSON.stringify(body) });
+// User-specific (must be logged in)
+export const getMyCourses = () => API.get("/courses/my-courses/list").then(r => r.data);
+export const enrollInCourse = (id) => API.post(`/courses/${id}/enroll`).then(r => r.data);
+export const unenrollFromCourse = (id) => API.delete(`/courses/${id}/unenroll`).then(r => r.data);
 
-// ================= Courses (User) =================
-export const getAllCourses = () => request("/courses");
-export const getCourseById = (id) => request(`/courses/${id}`);
-export const enrollInCourse = (id) => request(`/courses/${id}/enroll`, { method: "POST" });
-export const getMyCourses = () => request("/courses/my");
-export const unenrollFromCourse = (id) => request(`/courses/${id}/unenroll`, { method: "DELETE" });
-export const getCourseProgress = (id) => request(`/courses/${id}/progress`);
+// ========== Profile (User) ==========
+// Matches your current backend: GET /api/users/profile
+export const getMyProfile = () => API.get("/users/profile").then(r => r.data);
 
-// ================= Profile =================
-export const getMyProfile = () => request("/users/me");
-export const updateProfile = (body) => request("/users/me", { method: "PUT", body: JSON.stringify(body) });
-export const deleteMyAccount = () => request("/users/me", { method: "DELETE" });
+// These two need backend routes (/api/users/me) when we add them.
+// Keeping exported for when we wire them next; for now they’ll 404 if called.
+export const updateProfile = (body) => API.put("/users/me", body).then(r => r.data);
+export const deleteMyAccount = () => API.delete("/users/me").then(r => r.data);
 
-// ================= Admin (to add later) =================
-// export const getAllUsers = () => request("/admin/users");
-// export const deleteUser = (id) => request(`/admin/users/${id}`, { method: "DELETE" });
-// export const createCourse = (body) => request("/admin/courses", { method: "POST", body: JSON.stringify(body) });
-// export const updateCourse = (id, body) => request(`/admin/courses/${id}`, { method: "PUT", body: JSON.stringify(body) });
-// export const deleteCourse = (id) => request(`/admin/courses/${id}`, { method: "DELETE" });
+// ========== Admin ==========
+// Matches your current backend: GET /api/users/admin-data (returns { message, users })
+export const getAdminUsers = () => API.get("/users/admin-data").then(r => r.data);
+
+// Course create/update/delete already go through /courses with admin middleware.
+// If you want convenience wrappers for the Admin UI:
+export const adminCreateCourse = (course) => API.post("/courses", course).then(r => r.data);
+export const adminUpdateCourse = (id, body) => API.put(`/courses/${id}`, body).then(r => r.data);
+export const adminDeleteCourse = (id) => API.delete(`/courses/${id}`).then(r => r.data);
+
+// When we add real admin user management later, we can expose:
+// export const adminDeleteUser = (id) => API.delete(`/admin/users/${id}`).then(r => r.data);
+// export const adminToggleAdmin = (id, makeAdmin) => API.put(`/admin/users/${id}/role`, { isAdmin: makeAdmin }).then(r => r.data);
+
+export default API;
