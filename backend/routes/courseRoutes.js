@@ -16,19 +16,21 @@ const { admin } = require("../middleware/adminMiddleware");
 const router = express.Router();
 
 // Public & Admin
+// Public & Admin
 router.route("/")
   .get(getCourses)
   .post(protect, admin, createCourse);
-
-router.route("/:slug").get(getCourseBySlug);
-
-router.route("/:id")
-  .put(protect, admin, updateCourse)
-  .delete(protect, admin, deleteCourse);
 
 // User-specific (must be logged in)
 router.get("/my-courses/list", protect, getMyCourses);
 router.post("/:id/enroll", protect, enrollInCourse);
 router.delete("/:id/unenroll", protect, unenrollFromCourse);
+
+// Dynamic routes
+router.route("/slug/:slug").get(getCourseBySlug); // safer to namespace slug
+router.route("/:id")
+  .put(protect, admin, updateCourse)
+  .delete(protect, admin, deleteCourse);
+
 
 module.exports = router;

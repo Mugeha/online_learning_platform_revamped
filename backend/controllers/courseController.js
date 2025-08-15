@@ -81,10 +81,65 @@ const deleteCourse = async (req, res) => {
   res.json({ message: "Course removed" });
 };
 
+// @desc    Enroll in a course
+// @route   POST /api/courses/:id/enroll
+// @access  Private
+const enrollInCourse = async (req, res) => {
+  const courseId = req.params.id;
+
+  const course = await Course.findById(courseId);
+  if (!course) {
+    return res.status(404).json({ message: "Course not found" });
+  }
+
+  const user = req.user;
+
+  if (user.enrolledCourses.includes(courseId)) {
+    return res.status(400).json({ message: "Already enrolled in this course" });
+  }
+
+  user.enrolledCourses.push(courseId);
+  await user.save();
+
+  res.status(200).json({ message: "Successfully enrolled", course });
+};
+
+// @desc    Unenroll from a course
+// @route   DELETE /api/courses/:id/unenroll
+// @access  Private
+const unenrollFromCourse = async (req, res) => {
+  const courseId = req.params.id;
+
+  const user = req.user;
+
+  if (!user.enrolledCourses.includes(courseId)) {
+    return res.status(400).json({ message: "Not enrolled in this course" });
+  }
+
+  user.enrolledCourses = user.enrolledCourses.filter(
+    id => id.toString() !== courseId
+  );
+  await user.save();
+
+  res.status(200).json({ message: "Successfully unenrolled" });
+};
+
+// @desc    Get my courses
+// @route   GET /api/courses/my
+// @access  Private
+const getMyCourses = async (req, res) => {
+  const user = await req.user.populate("enrolledCourses");
+  res.status(200).json(user.enrolledCourses);
+};
+
+
 module.exports = {
   getCourses,
   getCourseBySlug,
   createCourse,
   updateCourse,
-  deleteCourse
+  deleteCourse,
+  getMyCourses,
+  unenrollFromCourse,
+  enrollInCourse
 };
