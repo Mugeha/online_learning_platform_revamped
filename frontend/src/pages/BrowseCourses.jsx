@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import TopNav from "../components/TopNav";
-import { getCourses, getMyCourses, enrollCourse } from "../api";
+import { getAllCourses, getMyCourses, enrollInCourse } from "../api";
 import "../styles/global.css";
 
 export default function BrowseCourses() {
@@ -15,25 +15,37 @@ export default function BrowseCourses() {
     const init = async () => {
       const token = localStorage.getItem("token");
       const isAdmin = localStorage.getItem("isAdmin") === "true";
+
       if (!token) return navigate("/");
       if (isAdmin) return navigate("/admin-dashboard");
+
       try {
-        const [{ data: all }, { data: mine }] = await Promise.all([
-          getCourses(),
+        const [all, mine] = await Promise.all([
+          getAllCourses(),
           getMyCourses(),
         ]);
-        setCourses(all.courses || all); // support either {courses:[]} or []
-        setEnrolledIds(new Set((mine.enrollments || mine).map((e) => e.course?._id || e._id)));
+
+        // `all` could be { courses: [] } or an array
+        const courseList = Array.isArray(all) ? all : all.courses || [];
+        const myEnrolledIds = (mine.enrollments || mine).map(
+          (e) => e.course?._id || e._id
+        );
+
+        setCourses(courseList);
+        setEnrolledIds(new Set(myEnrolledIds));
+      } catch (err) {
+        console.error("Error loading courses:", err);
       } finally {
         setLoading(false);
       }
     };
+
     init();
   }, [navigate]);
 
   const handleEnroll = async (id) => {
     try {
-      await enrollCourse(id);
+      await enrollInCourse(id);
       setEnrolledIds((prev) => new Set(prev).add(id));
     } catch (e) {
       console.error(e);
