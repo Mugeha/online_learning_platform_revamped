@@ -8,6 +8,8 @@ const {
   getMyCourses,
   enrollInCourse,
   unenrollFromCourse,
+  getAllEnrollments,
+  getAdminAnalytics,
 } = require("../controllers/courseController");
 
 const { protect } = require("../middleware/authMiddleware");
@@ -23,6 +25,10 @@ router.get("/slug/:slug", getCourseBySlug);
 router.post("/", protect, admin, createCourse);
 router.put("/:id", protect, admin, updateCourse);
 router.delete("/:id", protect, admin, deleteCourse);
+router.get("/enrollments", protect, admin, getAllEnrollments);
+router.get("/admin/analytics", protect, admin, getAdminAnalytics);
+
+
 
 // User-specific
 router.get("/my-courses/list", protect, getMyCourses);

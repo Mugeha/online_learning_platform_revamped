@@ -55,7 +55,7 @@ export const resetPassword = (token, body) =>
 
 // ========== Courses (Public + User) ==========
 // Public
-export const getAllCourses = () => API.get("/courses").then(r => r.data);
+export const getCourses = () => API.get("/courses").then(r => r.data);
 export const getCourseBySlug = (slug) => API.get(`/courses/${slug}`).then(r => r.data);
 
 // User-specific (must be logged in)

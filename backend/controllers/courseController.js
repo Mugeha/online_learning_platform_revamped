@@ -187,6 +187,59 @@ const getAllEnrollments = asyncHandler(async (req, res) => {
   res.json(enrollments);
 });
 
+// Admin Analytics
+// ===============================
+const getAdminAnalytics = async (req, res) => {
+  try {
+    // Total users
+    const totalUsers = await User.countDocuments();
+
+    // Total courses
+    const totalCourses = await Course.countDocuments();
+
+    // Total enrollments (sum of all enrolledCourses across users)
+    const totalEnrollments = await User.aggregate([
+      { $project: { count: { $size: "$enrolledCourses" } } },
+      { $group: { _id: null, total: { $sum: "$count" } } }
+    ]);
+
+    const enrollments =
+      totalEnrollments.length > 0 ? totalEnrollments[0].total : 0;
+
+    // Revenue (sum of course prices for enrolled courses)
+    const revenueData = await User.aggregate([
+      { $unwind: "$enrolledCourses" },
+      {
+        $lookup: {
+          from: "courses",
+          localField: "enrolledCourses",
+          foreignField: "_id",
+          as: "courseData"
+        }
+      },
+      { $unwind: "$courseData" },
+      {
+        $group: {
+          _id: null,
+          totalRevenue: { $sum: "$courseData.price" }
+        }
+      }
+    ]);
+
+    const revenue =
+      revenueData.length > 0 ? revenueData[0].totalRevenue : 0;
+
+    res.json({
+      totalUsers,
+      totalCourses,
+      enrollments,
+      revenue
+    });
+  } catch (error) {
+    console.error("Error fetching analytics:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
 
 module.exports = {
   getCourses,
@@ -198,4 +251,5 @@ module.exports = {
   unenrollFromCourse,
   getMyCourses,
   getAllEnrollments,
+  getAdminAnalytics,
 };
