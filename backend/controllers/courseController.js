@@ -158,6 +158,36 @@ const getMyCourses = async (req, res) => {
   }
 };
 
+// @desc    Get all enrollments (admin only)
+// @route   GET /api/courses/enrollments
+// @access  Private/Admin
+const getAllEnrollments = asyncHandler(async (req, res) => {
+  const courses = await Course.find({})
+    .populate("enrolledUsers", "name email") // populate user info
+    .select("title slug enrolledUsers");
+
+  // flatten into enrollment records
+  const enrollments = [];
+
+  courses.forEach((course) => {
+    course.enrolledUsers.forEach((user) => {
+      enrollments.push({
+        _id: `${course._id}-${user._id}`, // pseudo id
+        user,
+        course: {
+          _id: course._id,
+          title: course.title,
+          slug: course.slug,
+        },
+        enrolledAt: user.createdAt || new Date(), // if you track enrollment time separately, use that
+      });
+    });
+  });
+
+  res.json(enrollments);
+});
+
+
 module.exports = {
   getCourses,
   getCourseBySlug,
@@ -167,4 +197,5 @@ module.exports = {
   enrollInCourse,
   unenrollFromCourse,
   getMyCourses,
+  getAllEnrollments,
 };
