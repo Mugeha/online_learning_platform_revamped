@@ -1,25 +1,21 @@
 const express = require("express");
 const { protect } = require("../middleware/authMiddleware");
 const { admin } = require("../middleware/adminMiddleware");
-const User = require("../models/User");
+const {
+  getUserProfile,
+  updateUserProfile,
+  deleteMyAccount,
+  getAdminUsers,
+} = require("../controllers/userController");
 
 const router = express.Router();
 
-// Logged-in user route
-router.get("/profile", protect, (req, res) => {
-  res.json({
-    message: "User profile data",
-    user: req.user
-  });
-});
+// Logged-in user routes
+router.get("/profile", protect, getUserProfile);
+router.put("/profile", protect, updateUserProfile);
+router.delete("/me", protect, deleteMyAccount);
 
-// Admin-only route
-router.get("/admin-data", protect, admin, async (req, res) => {
-  const users = await User.find().select("-password");
-  res.json({
-    message: "Admin-only data",
-    users
-  });
-});
+// Admin-only users listing (matches your frontend getAdminUsers call)
+router.get("/admin-data", protect, admin, getAdminUsers);
 
 module.exports = router;

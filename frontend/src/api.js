@@ -69,7 +69,7 @@ export const getMyProfile = () => API.get("/users/profile").then(r => r.data);
 
 // These two need backend routes (/api/users/me) when we add them.
 // Keeping exported for when we wire them next; for now they’ll 404 if called.
-export const updateProfile = (body) => API.put("/users/me", body).then(r => r.data);
+export const updateProfile = (body) => API.put("/users/profile", body).then(r => r.data);
 export const deleteMyAccount = () => API.delete("/users/me").then(r => r.data);
 
 // ========== Admin ==========

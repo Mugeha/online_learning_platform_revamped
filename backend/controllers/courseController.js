@@ -8,6 +8,7 @@ const getCourses = async (req, res) => {
   res.json(courses);
 };
 
+
 // @desc    Get single course by slug
 // @route   GET /api/courses/:slug
 // @access  Public
