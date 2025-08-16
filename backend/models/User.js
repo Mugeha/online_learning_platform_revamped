@@ -17,6 +17,10 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: [true, "Please add a password"]
   },
+   address: {
+    type: String,
+    default: ""  // optional field
+  },
   isAdmin: {
     type: Boolean,
     default: false // By default, new users are not admins
