@@ -1,138 +1,162 @@
-const Course = require("../models/Course");
+const Course = require("../models/courseModel");
+const User = require("../models/userModel");
 
 // @desc    Get all courses
 // @route   GET /api/courses
 // @access  Public
 const getCourses = async (req, res) => {
-  const courses = await Course.find({});
-  res.json(courses);
+  try {
+    const courses = await Course.find({});
+    res.json(courses);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching courses" });
+  }
 };
-
 
 // @desc    Get single course by slug
-// @route   GET /api/courses/:slug
+// @route   GET /api/courses/slug/:slug
 // @access  Public
 const getCourseBySlug = async (req, res) => {
-  const course = await Course.findOne({ slug: req.params.slug });
-  if (!course) {
-    return res.status(404).json({ message: "Course not found" });
+  try {
+    const course = await Course.findOne({ slug: req.params.slug });
+    if (course) {
+      res.json(course);
+    } else {
+      res.status(404).json({ message: "Course not found" });
+    }
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching course" });
   }
-  res.json(course);
 };
 
-// @desc    Create new course
+// @desc    Create a new course
 // @route   POST /api/courses
-// @access  Private/Admin
+// @access  Admin
 const createCourse = async (req, res) => {
-  const { title, slug, description, instructor, imageUrl, category, price } = req.body;
+  try {
+    const { title, description, slug } = req.body;
 
-  const courseExists = await Course.findOne({ slug });
-  if (courseExists) {
-    return res.status(400).json({ message: "Slug already exists" });
+    const existing = await Course.findOne({ slug });
+    if (existing) {
+      return res.status(400).json({ message: "Slug already exists" });
+    }
+
+    const course = new Course({ title, description, slug });
+    const createdCourse = await course.save();
+
+    res.status(201).json(createdCourse);
+  } catch (error) {
+    res.status(500).json({ message: "Error creating course" });
   }
-
-  const course = new Course({
-    title,
-    slug,
-    description,
-    instructor,
-    imageUrl,
-    category,
-    price,
-    lessons: []
-  });
-
-  const createdCourse = await course.save();
-  res.status(201).json(createdCourse);
 };
 
 // @desc    Update course
 // @route   PUT /api/courses/:id
-// @access  Private/Admin
+// @access  Admin
 const updateCourse = async (req, res) => {
-  const { title, slug, description, instructor, imageUrl, category, price, lessons } = req.body;
-  const course = await Course.findById(req.params.id);
+  try {
+    const { title, description, slug } = req.body;
+    const course = await Course.findById(req.params.id);
 
-  if (!course) {
-    return res.status(404).json({ message: "Course not found" });
+    if (!course) {
+      return res.status(404).json({ message: "Course not found" });
+    }
+
+    // check slug uniqueness if updating
+    if (slug && slug !== course.slug) {
+      const existing = await Course.findOne({ slug });
+      if (existing) {
+        return res.status(400).json({ message: "Slug already exists" });
+      }
+      course.slug = slug;
+    }
+
+    course.title = title || course.title;
+    course.description = description || course.description;
+
+    const updatedCourse = await course.save();
+    res.json(updatedCourse);
+  } catch (error) {
+    res.status(500).json({ message: "Error updating course" });
   }
-
-  course.title = title || course.title;
-  course.slug = slug || course.slug;
-  course.description = description || course.description;
-  course.instructor = instructor || course.instructor;
-  course.imageUrl = imageUrl || course.imageUrl;
-  course.category = category || course.category;
-  course.price = price !== undefined ? price : course.price;
-  course.lessons = lessons || course.lessons;
-
-  const updatedCourse = await course.save();
-  res.json(updatedCourse);
 };
 
 // @desc    Delete course
 // @route   DELETE /api/courses/:id
-// @access  Private/Admin
+// @access  Admin
 const deleteCourse = async (req, res) => {
-  const course = await Course.findById(req.params.id);
-  if (!course) {
-    return res.status(404).json({ message: "Course not found" });
+  try {
+    const course = await Course.findById(req.params.id);
+
+    if (!course) {
+      return res.status(404).json({ message: "Course not found" });
+    }
+
+    await course.deleteOne();
+    res.json({ message: "Course removed" });
+  } catch (error) {
+    res.status(500).json({ message: "Error deleting course" });
   }
-  await course.remove();
-  res.json({ message: "Course removed" });
 };
 
 // @desc    Enroll in a course
 // @route   POST /api/courses/:id/enroll
 // @access  Private
 const enrollInCourse = async (req, res) => {
-  const courseId = req.params.id;
+  try {
+    const course = await Course.findById(req.params.id);
+    const user = await User.findById(req.user._id);
 
-  const course = await Course.findById(courseId);
-  if (!course) {
-    return res.status(404).json({ message: "Course not found" });
+    if (!course) {
+      return res.status(404).json({ message: "Course not found" });
+    }
+
+    if (user.enrolledCourses.includes(course._id)) {
+      return res.status(400).json({ message: "Already enrolled" });
+    }
+
+    user.enrolledCourses.push(course._id);
+    await user.save();
+
+    res.json({ message: "Enrolled successfully", courseId: course._id });
+  } catch (error) {
+    res.status(500).json({ message: "Error enrolling in course" });
   }
-
-  const user = req.user;
-
-  if (user.enrolledCourses.includes(courseId)) {
-    return res.status(400).json({ message: "Already enrolled in this course" });
-  }
-
-  user.enrolledCourses.push(courseId);
-  await user.save();
-
-  res.status(200).json({ message: "Successfully enrolled", course });
 };
 
 // @desc    Unenroll from a course
 // @route   DELETE /api/courses/:id/unenroll
 // @access  Private
 const unenrollFromCourse = async (req, res) => {
-  const courseId = req.params.id;
+  try {
+    const user = await User.findById(req.user._id);
 
-  const user = req.user;
+    if (!user.enrolledCourses.includes(req.params.id)) {
+      return res.status(400).json({ message: "Not enrolled in this course" });
+    }
 
-  if (!user.enrolledCourses.includes(courseId)) {
-    return res.status(400).json({ message: "Not enrolled in this course" });
+    user.enrolledCourses = user.enrolledCourses.filter(
+      (courseId) => courseId.toString() !== req.params.id
+    );
+
+    await user.save();
+    res.json({ message: "Unenrolled successfully" });
+  } catch (error) {
+    res.status(500).json({ message: "Error unenrolling from course" });
   }
-
-  user.enrolledCourses = user.enrolledCourses.filter(
-    id => id.toString() !== courseId
-  );
-  await user.save();
-
-  res.status(200).json({ message: "Successfully unenrolled" });
 };
 
-// @desc    Get my courses
-// @route   GET /api/courses/my
+// @desc    Get my enrolled courses
+// @route   GET /api/courses/my-courses/list
 // @access  Private
 const getMyCourses = async (req, res) => {
-  const user = await req.user.populate("enrolledCourses");
-  res.status(200).json(user.enrolledCourses);
+  try {
+    const user = await User.findById(req.user._id).populate("enrolledCourses");
+    res.json(user.enrolledCourses || []);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching enrolled courses" });
+  }
 };
-
 
 module.exports = {
   getCourses,
@@ -140,7 +164,7 @@ module.exports = {
   createCourse,
   updateCourse,
   deleteCourse,
-  getMyCourses,
+  enrollInCourse,
   unenrollFromCourse,
-  enrollInCourse
+  getMyCourses,
 };

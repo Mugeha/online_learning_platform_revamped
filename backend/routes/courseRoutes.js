@@ -7,7 +7,7 @@ const {
   deleteCourse,
   getMyCourses,
   enrollInCourse,
-  unenrollFromCourse
+  unenrollFromCourse,
 } = require("../controllers/courseController");
 
 const { protect } = require("../middleware/authMiddleware");
@@ -15,22 +15,18 @@ const { admin } = require("../middleware/adminMiddleware");
 
 const router = express.Router();
 
-// Public & Admin
-// Public & Admin
-router.route("/")
-  .get(getCourses)
-  .post(protect, admin, createCourse);
+// Public
+router.get("/", getCourses);
+router.get("/slug/:slug", getCourseBySlug);
 
-// User-specific (must be logged in)
+// Admin-only
+router.post("/", protect, admin, createCourse);
+router.put("/:id", protect, admin, updateCourse);
+router.delete("/:id", protect, admin, deleteCourse);
+
+// User-specific
 router.get("/my-courses/list", protect, getMyCourses);
 router.post("/:id/enroll", protect, enrollInCourse);
 router.delete("/:id/unenroll", protect, unenrollFromCourse);
-
-// Dynamic routes
-router.route("/slug/:slug").get(getCourseBySlug); // safer to namespace slug
-router.route("/:id")
-  .put(protect, admin, updateCourse)
-  .delete(protect, admin, deleteCourse);
-
 
 module.exports = router;
