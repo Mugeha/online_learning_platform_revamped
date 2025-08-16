@@ -56,7 +56,7 @@ export const resetPassword = (token, body) =>
 // ========== Courses (Public + User) ==========
 // Public
 export const getCourses = () => API.get("/courses").then(r => r.data);
-export const getCourseBySlug = (slug) => API.get(`/courses/${slug}`).then(r => r.data);
+export const getCourseBySlug = (slug) => API.get(`/courses/slug/${slug}`).then(r => r.data);
 
 // User-specific (must be logged in)
 export const getMyCourses = () => API.get("/courses/my-courses/list").then(r => r.data);
@@ -82,8 +82,11 @@ export const adminCreateCourse = (course) => API.post("/courses", course).then(r
 export const adminUpdateCourse = (id, body) => API.put(`/courses/${id}`, body).then(r => r.data);
 export const adminDeleteCourse = (id) => API.delete(`/courses/${id}`).then(r => r.data);
 
-// When we add real admin user management later, we can expose:
-// export const adminDeleteUser = (id) => API.delete(`/admin/users/${id}`).then(r => r.data);
-// export const adminToggleAdmin = (id, makeAdmin) => API.put(`/admin/users/${id}/role`, { isAdmin: makeAdmin }).then(r => r.data);
+// Admin Enrollments
+export const getAllEnrollments = () => API.get("/courses/enrollments").then(r => r.data);
+
+// Admin Analytics
+export const getAdminAnalytics = () => API.get("/courses/admin/analytics").then(r => r.data);
+
 
 export default API;

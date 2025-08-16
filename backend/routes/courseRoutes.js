@@ -29,7 +29,6 @@ router.get("/enrollments", protect, admin, getAllEnrollments);
 router.get("/admin/analytics", protect, admin, getAdminAnalytics);
 
 
-
 // User-specific
 router.get("/my-courses/list", protect, getMyCourses);
 router.post("/:id/enroll", protect, enrollInCourse);

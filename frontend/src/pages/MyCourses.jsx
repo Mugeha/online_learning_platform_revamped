@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import TopNav from "../components/TopNav";
-import { getMyCourses, unenrollCourse } from "../api";
+import { getMyCourses, unenrollFromCourse } from "../api";
 import "../styles/global.css";
 
 export default function MyCourses() {
@@ -17,8 +17,10 @@ export default function MyCourses() {
       if (!token) return navigate("/");
       if (isAdmin) return navigate("/admin-dashboard");
 
-      const { data } = await getMyCourses();
+      const data = await getMyCourses();
       setEnrollments(data.enrollments || data); // support either shape
+    } catch (err) {
+      console.error("Error loading my courses:", err);
     } finally {
       setLoading(false);
     }
@@ -31,8 +33,10 @@ export default function MyCourses() {
   const handleUnenroll = async (courseId) => {
     if (!window.confirm("Unenroll from this course?")) return;
     try {
-      await unenrollCourse(courseId);
-      setEnrollments((prev) => prev.filter((e) => (e.course?._id || e._id) !== courseId));
+      await unenrollFromCourse(courseId);
+      setEnrollments((prev) =>
+        prev.filter((e) => (e.course?._id || e._id) !== courseId)
+      );
     } catch (e) {
       console.error(e);
       alert("Could not unenroll.");
@@ -54,7 +58,7 @@ export default function MyCourses() {
           ) : (
             <div className="grid">
               {enrollments.map((e) => {
-                const c = e.course || e; // in case backend returns course doc in e.course
+                const c = e.course || e; // fallback if no course wrapper
                 const progress = e.progress ?? c.progress ?? 0;
                 return (
                   <div key={c._id} className="course-card">
@@ -62,11 +66,17 @@ export default function MyCourses() {
                     <p className="muted">{c.description}</p>
 
                     <div className="progress">
-                      <div className="progress-bar" style={{ width: `${progress}%` }} />
+                      <div
+                        className="progress-bar"
+                        style={{ width: `${progress}%` }}
+                      />
                     </div>
                     <div className="course-actions">
                       <button className="btn">Continue</button>
-                      <button className="btn ghost" onClick={() => handleUnenroll(c._id)}>
+                      <button
+                        className="btn ghost"
+                        onClick={() => handleUnenroll(c._id)}
+                      >
                         Unenroll
                       </button>
                     </div>
