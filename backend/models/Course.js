@@ -1,24 +1,29 @@
-const mongoose = require("mongoose");
-
-const lessonSchema = new mongoose.Schema({
-  title: { type: String, required: true },
-  content: { type: String },
-  videoUrl: { type: String },
-  duration: { type: String }
-});
-
-const courseSchema = new mongoose.Schema(
-  {
-    title: { type: String, required: true },
-    slug: { type: String, required: true, unique: true },
-    description: { type: String, required: true },
-    instructor: { type: String, required: true },
-    imageUrl: { type: String },
-    category: { type: String },
-    price: { type: Number, default: 0 }, // 0 means free
-    lessons: [lessonSchema]
+const userSchema = new mongoose.Schema({
+  name: {
+    type: String,
+    required: [true, "Please add a name"]
   },
-  { timestamps: true }
-);
+  email: {
+    type: String,
+    required: [true, "Please add an email"],
+    unique: true
+  },
+  password: {
+    type: String,
+    required: [true, "Please add a password"]
+  },
+  address: {
+    type: String,
+    default: ""  // optional field
+  },
+  isAdmin: {
+    type: Boolean,
+    default: false // By default, new users are not admins
+  },
+  enrolledCourses: [{ type: mongoose.Schema.Types.ObjectId, ref: "Course" }],
 
-module.exports = mongoose.model("Course", courseSchema);
+  resetPasswordToken: String,
+  resetPasswordExpire: Date
+}, {
+  timestamps: true
+});
