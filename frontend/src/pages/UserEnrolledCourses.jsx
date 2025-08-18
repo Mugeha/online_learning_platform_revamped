@@ -1,79 +1,62 @@
+// src/pages/UserEnrolledCourses.jsx
 import React, { useEffect, useState } from "react";
 import { getMyCourses, unenrollFromCourse } from "../api";
+import "../styles/global.css";
 
-const UserEnrolledCourses = () => {
-  const [enrolledCourses, setEnrolledCourses] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [message, setMessage] = useState("");
+export default function UserEnrolledCourses() {
+  const [courses, setCourses] = useState([]);
 
   useEffect(() => {
-    const fetchEnrolledCourses = async () => {
+    const load = async () => {
       try {
-        const response = await getMyCourses();
-        setEnrolledCourses(response.data); // backend should return array of enrolled courses
+        const data = await getMyCourses();
+        setCourses(data.courses || []);
       } catch (err) {
-        console.error("Failed to fetch enrolled courses:", err);
-      } finally {
-        setLoading(false);
+        console.error("Failed to load enrolled courses", err);
       }
     };
-    fetchEnrolledCourses();
+    load();
   }, []);
 
-  const handleUnenroll = async (courseId) => {
+  const handleUnenroll = async (id) => {
     try {
-      await unenrollFromCourse(courseId);
-      setMessage("✅ Successfully unenrolled from course!");
-
-      // remove from local state
-      setEnrolledCourses((prev) =>
-        prev.filter((course) => course._id !== courseId)
-      );
+      await unenrollFromCourse(id);
+      setCourses((prev) => prev.filter((c) => c._id !== id));
     } catch (err) {
-      setMessage("❌ Failed to unenroll.");
+      alert("Failed to unenroll. Try again.");
     }
-
-    setTimeout(() => setMessage(""), 3000); // clear after 3s
   };
 
-  if (loading) {
-    return <p>Loading your enrolled courses...</p>;
-  }
-
   return (
-    <div>
-      <h2 className="text-2xl font-bold mb-4">My Enrolled Courses</h2>
-      {message && (
-        <div className="mb-4 p-3 rounded bg-green-100 text-green-800">
-          {message}
-        </div>
-      )}
-      {enrolledCourses.length === 0 ? (
-        <p>You have not enrolled in any courses yet.</p>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {enrolledCourses.map((course) => (
-            <div
-              key={course._id}
-              className="bg-white shadow-md rounded-lg p-5 border"
-            >
-              <h3 className="text-xl font-semibold">{course.title}</h3>
-              <p className="text-gray-600 mt-2">{course.description}</p>
-              <p className="text-sm text-gray-500 mt-1">
-                Instructor: {course.instructor || "N/A"}
-              </p>
-              <button
-                onClick={() => handleUnenroll(course._id)}
-                className="mt-4 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
-              >
-                Unenroll
-              </button>
+    <div className="container">
+      <h2>My Enrolled Courses</h2>
+      <div className="grid">
+        {courses.map((course) => {
+          // Demo progress: random or use actual backend field if available
+          const progress = Math.floor(Math.random() * 100);
+
+          return (
+            <div key={course._id} className="course-card">
+              <h3>{course.title}</h3>
+              <p className="muted">{course.description}</p>
+              <div className="progress">
+                <div
+                  className="progress-bar"
+                  style={{ width: `${progress}%` }}
+                ></div>
+              </div>
+              <div style={{ fontSize: ".85rem", marginTop: 4 }}>
+                Progress: {progress}%
+              </div>
+              <div className="course-actions">
+                <button className="btn ghost" onClick={() => handleUnenroll(course._id)}>
+                  Unenroll
+                </button>
+              </div>
             </div>
-          ))}
-        </div>
-      )}
+          );
+        })}
+      </div>
     </div>
   );
-};
-
-export default UserEnrolledCourses;
+}
