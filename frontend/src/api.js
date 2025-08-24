@@ -61,6 +61,10 @@ export const getCourseById = (id) => API.get(`/courses/${id}`).then(r => r.data)
 export const enrollInCourse = (id) => API.post(`/courses/${id}/enroll`).then(r => r.data);
 export const getMyEnrollments = () => API.get("/courses/me/enrollments").then(r => r.data);
 
+// old API (backward compatibility for MyCourses.jsx, BrowseCourses.jsx)
+export const getMyCourses = () =>
+  API.get("/courses/my-courses/list").then((r) => r.data);
+
 // ========== Profile (User) ==========
 export const getMyProfile = () => API.get("/users/profile").then(r => r.data);
 export const updateUserProfile = (body) => API.put("/users/profile", body).then(r => r.data);

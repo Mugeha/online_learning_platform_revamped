@@ -3,6 +3,8 @@ const express = require("express");
 const dotenv = require("dotenv");
 const mongoose = require("mongoose");
 const cors = require("cors");
+const adminRoutes = require("./routes/adminRoutes");
+
 
 // Initialize app
 const app = express();
