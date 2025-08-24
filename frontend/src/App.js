@@ -12,7 +12,7 @@ import UserDashboard from "./pages/UserDashboard";
 
 import BrowseCourses from "./pages/BrowseCourses";
 import MyCourses from "./pages/MyCourses";
-import ProfilePage from "./pages/ProfilePage";
+// import ProfilePage from "./pages/ProfilePage";
 
 import "./styles/global.css";
 
@@ -66,14 +66,14 @@ function App() {
               </PrivateRoute>
             }
           />
-          <Route
+          {/* <Route
             path="/profile"
             element={
               <PrivateRoute>
                 <ProfilePage />
               </PrivateRoute>
             }
-          />
+          /> */}
 
           {/* Admin Only */}
           <Route

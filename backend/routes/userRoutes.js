@@ -22,6 +22,7 @@ router.route("/:id")
   .put(protect, admin, updateUserByAdmin)
   .delete(protect, admin, deleteUser);
 
+  
 // Admin-only users listing (matches your frontend getAdminUsers call)
 router.get("/admin-data", protect, admin, getAdminUsers);
 

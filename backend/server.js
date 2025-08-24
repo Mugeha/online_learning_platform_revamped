@@ -17,7 +17,7 @@ app.use(express.json()); // Parse incoming JSON
 app.use("/api/auth", require("./routes/authRoutes"));
 app.use("/api/courses", require("./routes/courseRoutes"));
 app.use("/api/users", require("./routes/userRoutes"));
-app.use("/api/enrollments", require("./routes/enrollmentRoutes"));
+// app.use("/api/enrollments", require("./routes/enrollmentRoutes"));
 
 
 // Basic route

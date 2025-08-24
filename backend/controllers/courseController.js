@@ -1,5 +1,5 @@
-const Course = require("../models/courseModel");
-const User = require("../models/userModel");
+const Course = require("../models/Course");
+const User = require("../models/User");
 
 // @desc    Get all courses
 // @route   GET /api/courses
@@ -161,31 +161,38 @@ const getMyCourses = async (req, res) => {
 // @desc    Get all enrollments (admin only)
 // @route   GET /api/courses/enrollments
 // @access  Private/Admin
-const getAllEnrollments = asyncHandler(async (req, res) => {
-  const courses = await Course.find({})
-    .populate("enrolledUsers", "name email") // populate user info
-    .select("title slug enrolledUsers");
+// @desc    Get all enrollments
+// @route   GET /api/courses/enrollments
+// @access  Private
+const getAllEnrollments = async (req, res) => {
+  try {
+    const courses = await Course.find({})
+      .populate("enrolledUsers", "name email") // populate user info
+      .select("title slug enrolledUsers");
 
-  // flatten into enrollment records
-  const enrollments = [];
+    // flatten into enrollment records
+    const enrollments = [];
 
-  courses.forEach((course) => {
-    course.enrolledUsers.forEach((user) => {
-      enrollments.push({
-        _id: `${course._id}-${user._id}`, // pseudo id
-        user,
-        course: {
-          _id: course._id,
-          title: course.title,
-          slug: course.slug,
-        },
-        enrolledAt: user.createdAt || new Date(), // if you track enrollment time separately, use that
+    courses.forEach((course) => {
+      course.enrolledUsers.forEach((user) => {
+        enrollments.push({
+          _id: `${course._id}-${user._id}`, // pseudo id
+          user,
+          course: {
+            _id: course._id,
+            title: course.title,
+            slug: course.slug,
+          },
+          enrolledAt: user.createdAt || new Date(), // fallback if no timestamp
+        });
       });
     });
-  });
 
-  res.json(enrollments);
-});
+    res.status(200).json(enrollments);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
 
 // Admin Analytics
 // ===============================

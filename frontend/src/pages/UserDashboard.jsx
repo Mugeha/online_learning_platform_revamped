@@ -2,7 +2,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { getMyProfile } from "../api";
-import TopNav from "../components/TopNav";
 import "../styles/global.css";
 
 export default function UserDashboard() {
@@ -28,7 +27,6 @@ export default function UserDashboard() {
 
   return (
     <div className="container">
-      <TopNav />
       <main>
         {loading ? (
           <p>Loading your dashboard...</p>

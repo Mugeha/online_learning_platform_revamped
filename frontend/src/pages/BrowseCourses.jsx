@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import TopNav from "../components/TopNav";
-import { getAllCourses, getMyCourses, enrollInCourse } from "../api";
+import { getCourses, getMyCourses, enrollInCourse } from "../api";
 import "../styles/global.css";
 
 export default function BrowseCourses() {
@@ -21,7 +21,7 @@ export default function BrowseCourses() {
 
       try {
         const [all, mine] = await Promise.all([
-          getAllCourses(),
+          getCourses(),
           getMyCourses(),
         ]);
 
