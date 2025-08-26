@@ -3,8 +3,6 @@ const express = require("express");
 const dotenv = require("dotenv");
 const mongoose = require("mongoose");
 const cors = require("cors");
-const adminRoutes = require("./routes/adminRoutes");
-
 
 // Initialize app
 const app = express();
@@ -16,7 +14,7 @@ dotenv.config();
 app.use(cors()); // Allow cross-origin requests
 app.use(express.json()); // Parse incoming JSON
 // Routes
-app.use("/api/admin", adminRoutes);
+app.use("/api/admin", require("./routes/adminRoutes"));
 app.use("/api/auth", require("./routes/authRoutes"));
 app.use("/api/courses", require("./routes/courseRoutes"));
 app.use("/api/users", require("./routes/userRoutes"));

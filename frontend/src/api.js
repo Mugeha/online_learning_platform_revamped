@@ -14,9 +14,7 @@ function isTokenExpired(token) {
 }
 
 // --- Axios instance ---
-const API = axios.create({
-  baseURL: API_BASE,
-});
+const API = axios.create({ baseURL: API_BASE });
 
 // --- Interceptors ---
 API.interceptors.request.use((req) => {
@@ -46,29 +44,23 @@ API.interceptors.response.use(
 );
 
 // ========== Auth ==========
-export const authRegister = (body) => API.post("/users", body).then(r => r.data);
-export const authLogin = (body) => API.post("/users/login", body).then(r => r.data);
+export const authRegister = (body) => API.post("/auth/register", body).then(r => r.data);
+export const authLogin = (body) => API.post("/auth/login", body).then(r => r.data);
 export const forgotPassword = (body) => API.post("/auth/forgot-password", body).then(r => r.data);
-export const resetPassword = (token, body) =>
-  API.put(`/auth/reset-password/${token}`, body).then(r => r.data);
+export const resetPassword = (token, body) => API.put(`/auth/reset-password/${token}`, body).then(r => r.data);
 
-// ========== Courses (Public + User) ==========
-// Public
+// ========== Courses ==========
 export const getCourses = () => API.get("/courses").then(r => r.data);
-export const getCourseById = (id) => API.get(`/courses/${id}`).then(r => r.data);
+export const getCourseBySlug = (slug) => API.get(`/courses/slug/${slug}`).then(r => r.data);
 
-// User-specific (must be logged in)
+export const getMyCourses = () => API.get("/courses/my-courses/list").then(r => r.data);
 export const enrollInCourse = (id) => API.post(`/courses/${id}/enroll`).then(r => r.data);
-export const getMyEnrollments = () => API.get("/courses/me/enrollments").then(r => r.data);
-
-// old API (backward compatibility for MyCourses.jsx, BrowseCourses.jsx)
-export const getMyCourses = () =>
-  API.get("/courses/my-courses/list").then((r) => r.data);
+export const unenrollFromCourse = (id) => API.delete(`/courses/${id}/unenroll`).then(r => r.data);
 
 // ========== Profile (User) ==========
 export const getMyProfile = () => API.get("/users/profile").then(r => r.data);
 export const updateUserProfile = (body) => API.put("/users/profile", body).then(r => r.data);
-// TODO: add deleteMyAccount if you wire backend route later
+export const deleteMyAccount = () => API.delete("/users/me").then(r => r.data);
 
 // ========== Admin ==========
 export const getAdminUsers = () => API.get("/admin/users").then(r => r.data);
