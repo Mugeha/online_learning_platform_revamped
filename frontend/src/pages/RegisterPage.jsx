@@ -27,17 +27,32 @@ export default function RegisterPage({ history }) {
     if (v) return setError(v);
     setError("");
     setLoading(true);
-    try {
-      const data = await authRegister({ name: form.name, email: form.email, password: form.password });
-      login(data); // save user & token
-      // redirect to dashboard/home
- if (data.user.role === "admin") {
-      window.location.href = "/admin-dashboard";
-    } else {
-      window.location.href = "/user-dashboard";
-    }    } catch (err) {
-      setError(err.message || "Registration failed");
-    } finally {
+   try {
+  console.log("📤 Submitting registration form with:", {
+    name: form.name,
+    email: form.email,
+    password: form.password
+  });
+
+  const data = await authRegister({
+    name: form.name,
+    email: form.email,
+    password: form.password
+  });
+
+  console.log("✅ Registration success response:", data);
+
+  login(data);
+  if (data.user.role === "admin") {
+    window.location.href = "/admin-dashboard";
+  } else {
+    window.location.href = "/user-dashboard";
+  }
+} catch (err) {
+  console.error("❌ Registration failed:", err);
+  setError(err.message || "Registration failed");
+}
+ finally {
       setLoading(false);
     }
   };

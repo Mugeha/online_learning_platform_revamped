@@ -27,11 +27,14 @@ const registerUser = async (req, res) => {
 
     if (user) {
       res.status(201).json({
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-        isAdmin: user.isAdmin,
-        token: generateToken(user._id, user.isAdmin)
+        message: "User registered successfully",
+        user: {
+          id: user._id,
+          name: user.name,
+          email: user.email,
+          role: user.isAdmin ? "admin" : "user", // ✅ map isAdmin → role
+        },
+        token: generateToken(user._id, user.isAdmin),
       });
     } else {
       console.error("[registerUser] invalid user data");
@@ -59,11 +62,14 @@ const loginUser = async (req, res) => {
 
       if (passwordMatch) {
         return res.json({
-          _id: user._id,
-          name: user.name,
-          email: user.email,
-          isAdmin: user.isAdmin,
-          token: generateToken(user._id, user.isAdmin)
+          message: "Login successful",
+          user: {
+            id: user._id,
+            name: user.name,
+            email: user.email,
+            role: user.isAdmin ? "admin" : "user", // ✅ role consistency
+          },
+          token: generateToken(user._id, user.isAdmin),
         });
       }
     }
@@ -75,6 +81,7 @@ const loginUser = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
 
 // @desc   Forgot password
 // @route  POST /api/auth/forgot-password
