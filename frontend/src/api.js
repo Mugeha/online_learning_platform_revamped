@@ -46,44 +46,37 @@ API.interceptors.request.use((req) => {
 });
 
 // Response interceptor
+// Response interceptor
 API.interceptors.response.use(
-  (res) => {
-    console.log(
-      "%c[API RESPONSE]",
-      "color: green; font-weight: bold",
+  (response) => response,
+  (error) => {
+    console.error(
+      "%c[API RESPONSE ERROR]",
+      "color: red; font-weight: bold",
       {
-        url: res.config.url,
-        status: res.status,
-        data: res.data
+        url: error.config?.url,
+        status: error.response?.status,
+        data: error.response?.data
       }
     );
-    return res;
-  },
-  (err) => {
-    if (err.response) {
-      console.error(
-        "%c[API ERROR RESPONSE]",
-        "color: red; font-weight: bold",
-        {
-          url: err.config?.url,
-          status: err.response?.status,
-          data: err.response?.data
-        }
-      );
-    } else {
-      console.error(
-        "%c[API ERROR]",
-        "color: red; font-weight: bold",
-        err.message
-      );
+
+    // ✅ Skip redirect for auth endpoints
+    if (
+      error.config?.url?.includes("/auth/login") ||
+      error.config?.url?.includes("/auth/register") ||
+      error.config?.url?.includes("/auth/forgot-password") ||
+      error.config?.url?.includes("/auth/reset-password")
+    ) {
+      return Promise.reject(error); // let login/register handle it
     }
 
-    if (err?.response?.status === 401) {
+    if (error.response && error.response.status === 401) {
       localStorage.removeItem("token");
       localStorage.removeItem("isAdmin");
       window.location.href = "/login";
     }
-    return Promise.reject(err);
+
+    return Promise.reject(error);
   }
 );
 

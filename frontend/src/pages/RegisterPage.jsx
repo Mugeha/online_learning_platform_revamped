@@ -6,6 +6,7 @@ import "../styles/auth.css";
 
 export default function RegisterPage() {
   const { login } = useContext(AuthContext);
+      const navigate = useNavigate();
   const [form, setForm] = useState({ name: "", email: "", password: "", confirm: "" });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
