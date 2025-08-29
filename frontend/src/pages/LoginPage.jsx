@@ -1,4 +1,6 @@
 import React, { useState, useContext } from "react";
+import { useNavigate } from "react-router-dom";
+
 import { authLogin } from "../api";
 import { AuthContext } from "../contexts/AuthContext";
 import "../styles/auth.css";
@@ -27,12 +29,12 @@ export default function LoginPage() {
       const userData = { token: data.token, ...data.user };
       login(userData);
 
-      // Redirect using normalized userData
-      if (userData.role === "admin") {
-        window.location.href = "/admin-dashboard";
-      } else {
-        window.location.href = "/user-dashboard";
-      }
+       // role-based redirect
+    if (data.user?.role === "admin") {
+      navigate("/admin-dashboard");
+    } else {
+      navigate("/user-dashboard");
+    }
     } catch (err) {
       console.error("❌ Login failed:", err);
       setError(err.message || "Invalid credentials");
