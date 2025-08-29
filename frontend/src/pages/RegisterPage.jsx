@@ -1,5 +1,6 @@
 import React, { useState, useContext } from "react";
 import { authRegister } from "../api";
+import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../contexts/AuthContext";
 import "../styles/auth.css";
 
@@ -48,9 +49,9 @@ export default function RegisterPage() {
 
       // Redirect using normalized userData
       if (userData.role === "admin") {
-        window.location.href = "/admin-dashboard";
+      navigate("/admin-dashboard");
       } else {
-        window.location.href = "/user-dashboard";
+      navigate("/user-dashboard");
       }
     } catch (err) {
       console.error("❌ Registration failed:", err);

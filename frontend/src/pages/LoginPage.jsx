@@ -1,12 +1,12 @@
 import React, { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
-
 import { authLogin } from "../api";
 import { AuthContext } from "../contexts/AuthContext";
 import "../styles/auth.css";
 
 export default function LoginPage() {
   const { login } = useContext(AuthContext);
+    const navigate = useNavigate();
   const [form, setForm] = useState({ email: "", password: "" });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -30,11 +30,12 @@ export default function LoginPage() {
       login(userData);
 
        // role-based redirect
-    if (data.user?.role === "admin") {
+    // Redirect using normalized userData
+      if (userData.role === "admin") {
       navigate("/admin-dashboard");
-    } else {
+      } else {
       navigate("/user-dashboard");
-    }
+      }
     } catch (err) {
       console.error("❌ Login failed:", err);
       setError(err.message || "Invalid credentials");
