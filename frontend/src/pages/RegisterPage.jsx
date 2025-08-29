@@ -22,40 +22,49 @@ export default function RegisterPage({ history }) {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    const v = validate();
-    if (v) return setError(v);
-    setError("");
-    setLoading(true);
-   try {
-  console.log("📤 Submitting registration form with:", {
-    name: form.name,
-    email: form.email,
-    password: form.password
-  });
+  e.preventDefault();
+  const v = validate();
+  if (v) return setError(v);
+  setError("");
+  setLoading(true);
 
-  const data = await authRegister({
-    name: form.name,
-    email: form.email,
-    password: form.password
-  });
+  try {
+    console.log("📤 Submitting registration form with:", {
+      name: form.name,
+      email: form.email,
+      password: form.password
+    });
 
-  console.log("✅ Registration success response:", data);
+    const data = await authRegister({
+      name: form.name,
+      email: form.email,
+      password: form.password
+    });
 
-  login(data);
-  if (data.user.role === "admin") {
-    window.location.href = "/admin-dashboard";
-  } else {
-    window.location.href = "/user-dashboard";
-  }
-} catch (err) {
-  console.error("❌ Registration failed:", err);
-  setError(err.message || "Registration failed");
-}
- finally {
-      setLoading(false);
+    console.log("✅ Registration success response:", data);
+
+    // Normalize what we store in AuthContext
+    const userData = {
+      token: data.token,
+      ...data.user
+    };
+
+    login(userData);
+
+    // redirect based on role
+    if (userData.role === "admin") {
+      window.location.href = "/admin-dashboard";
+    } else {
+      window.location.href = "/user-dashboard";
     }
-  };
+  } catch (err) {
+    console.error("❌ Registration failed:", err);
+    setError(err.message || "Registration failed");
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   return (
     <div className="auth-page">

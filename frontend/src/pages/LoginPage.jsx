@@ -1,4 +1,3 @@
-// src/pages/LoginPage.jsx
 import React, { useState, useContext } from "react";
 import { authLogin } from "../api";
 import { AuthContext } from "../contexts/AuthContext";
@@ -15,18 +14,27 @@ export default function LoginPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!form.email || !form.password) return setError("Enter email and password");
+
     setError("");
     setLoading(true);
+
     try {
+      console.log("📤 Logging in with:", form);
       const data = await authLogin(form);
-      login(data);
-// role-based redirect
-      if (data.user?.role === "admin") {
+      console.log("✅ Login success response:", data);
+
+      // Normalize user data once
+      const userData = { token: data.token, ...data.user };
+      login(userData);
+
+      // Redirect using normalized userData
+      if (userData.role === "admin") {
         window.location.href = "/admin-dashboard";
       } else {
         window.location.href = "/user-dashboard";
       }
-        } catch (err) {
+    } catch (err) {
+      console.error("❌ Login failed:", err);
       setError(err.message || "Invalid credentials");
     } finally {
       setLoading(false);
@@ -40,12 +48,23 @@ export default function LoginPage() {
         <form onSubmit={handleSubmit} className="auth-form">
           <label>
             <span>Email</span>
-            <input name="email" value={form.email} onChange={handleChange} placeholder="you@example.com" />
+            <input
+              name="email"
+              value={form.email}
+              onChange={handleChange}
+              placeholder="you@example.com"
+            />
           </label>
 
           <label>
             <span>Password</span>
-            <input name="password" type="password" value={form.password} onChange={handleChange} placeholder="Your password" />
+            <input
+              name="password"
+              type="password"
+              value={form.password}
+              onChange={handleChange}
+              placeholder="Your password"
+            />
           </label>
 
           {error && <div className="error">{error}</div>}
