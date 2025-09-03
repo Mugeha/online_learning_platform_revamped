@@ -1,5 +1,6 @@
 // src/pages/UserDashboard.jsx
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
+import { AuthContext } from "../contexts/AuthContext";
 import { useNavigate, Link } from "react-router-dom";
 import { getMyProfile } from "../api";
 import "../styles/global.css";
@@ -8,6 +9,8 @@ export default function UserDashboard() {
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState(null);
   const navigate = useNavigate();
+    const { username } = useContext(AuthContext);
+
 
   useEffect(() => {
     const init = async () => {
@@ -33,7 +36,7 @@ export default function UserDashboard() {
         ) : (
           <>
             <section className="card" style={{ marginBottom: 20 }}>
-              <h2>Welcome, {user?.name || "Learner"} 👋</h2>
+              <h2>Welcome, {username?.name || "Learner"} 👋</h2>
               <p className="muted">
                 Jump back into your learning journey or discover new courses recommended for you.
               </p>

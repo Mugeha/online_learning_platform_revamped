@@ -16,8 +16,6 @@ function isTokenExpired(token) {
 // --- Axios instance ---
 const API = axios.create({ baseURL: API_BASE });
 
-// --- Interceptors ---
-// Request interceptor
 API.interceptors.request.use((req) => {
   const token = localStorage.getItem("token");
 
@@ -32,6 +30,16 @@ API.interceptors.request.use((req) => {
     }
   );
 
+  // ✅ Skip token logic for auth endpoints
+  if (
+    req.url.includes("/auth/login") ||
+    req.url.includes("/auth/register") ||
+    req.url.includes("/auth/forgot-password") ||
+    req.url.includes("/auth/reset-password")
+  ) {
+    return req;
+  }
+
   if (token) {
     if (isTokenExpired(token)) {
       console.warn("[API] Token expired, clearing localStorage and redirecting.");
@@ -42,43 +50,11 @@ API.interceptors.request.use((req) => {
     }
     req.headers.Authorization = `Bearer ${token}`;
   }
+
   return req;
 });
 
-// Response interceptor
-// Response interceptor
-API.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    console.error(
-      "%c[API RESPONSE ERROR]",
-      "color: red; font-weight: bold",
-      {
-        url: error.config?.url,
-        status: error.response?.status,
-        data: error.response?.data
-      }
-    );
 
-    // ✅ Skip redirect for auth endpoints
-    if (
-      error.config?.url?.includes("/auth/login") ||
-      error.config?.url?.includes("/auth/register") ||
-      error.config?.url?.includes("/auth/forgot-password") ||
-      error.config?.url?.includes("/auth/reset-password")
-    ) {
-      return Promise.reject(error); // let login/register handle it
-    }
-
-    if (error.response && error.response.status === 401) {
-      localStorage.removeItem("token");
-      localStorage.removeItem("isAdmin");
-      window.location.href = "/login";
-    }
-
-    return Promise.reject(error);
-  }
-);
 
 // ========== Auth ==========
 export const authRegister = (body) => {
