@@ -1,6 +1,6 @@
 // src/pages/UserProfile.jsx
 import React, { useEffect, useState } from "react";
-import { getMyProfile, updateMyProfile } from "../api";
+import { getMyProfile, updateUserProfile } from "../api";
 import "../styles/global.css";
 
 export default function UserProfile() {
@@ -14,7 +14,11 @@ export default function UserProfile() {
       try {
         const data = await getMyProfile();
         setUser(data.user);
-        setForm({ name: data.user.name, email: data.user.email, password: "" });
+        setForm({
+          name: data.user.name,
+          email: data.user.email,
+          password: "",
+        });
       } catch (err) {
         console.error("Failed to load profile:", err);
       } finally {
@@ -32,7 +36,7 @@ export default function UserProfile() {
     e.preventDefault();
     setMessage("");
     try {
-      const updated = await updateMyProfile(form);
+      const updated = await updateUserProfile(form);
       setUser(updated.user);
       setMessage("✅ Profile updated successfully!");
     } catch (err) {
@@ -48,7 +52,16 @@ export default function UserProfile() {
       <main>
         <section className="card">
           <h2>My Profile</h2>
+
+          {/* Show who is logged in */}
+          {user && (
+            <p className="muted">
+              Logged in as <strong>{user.name}</strong> ({user.email})
+            </p>
+          )}
+
           {message && <p className="muted">{message}</p>}
+
           <form onSubmit={handleSubmit} className="form">
             <div className="form-group">
               <label>Name</label>
@@ -80,7 +93,9 @@ export default function UserProfile() {
                 placeholder="Enter new password"
               />
             </div>
-            <button type="submit" className="btn">Update Profile</button>
+            <button type="submit" className="btn">
+              Update Profile
+            </button>
           </form>
         </section>
       </main>

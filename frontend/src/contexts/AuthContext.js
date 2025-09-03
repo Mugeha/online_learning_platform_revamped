@@ -11,6 +11,7 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     if (user) {
+      // Save both token + user info
       localStorage.setItem("token", user.token);
       localStorage.setItem("user", JSON.stringify(user));
     } else {
@@ -23,7 +24,7 @@ export function AuthProvider({ children }) {
   const logout = () => setUser(null);
 
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider value={{ user, setUser, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

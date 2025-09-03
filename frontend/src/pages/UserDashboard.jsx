@@ -1,46 +1,51 @@
 // src/pages/UserDashboard.jsx
-import React, { useEffect, useState, useContext } from "react";
-import { AuthContext } from "../contexts/AuthContext";
+import React, { useEffect, useContext, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { getMyProfile } from "../api";
+import { AuthContext } from "../contexts/AuthContext";
 import "../styles/global.css";
 
 export default function UserDashboard() {
+  const { user, setUser } = useContext(AuthContext);
   const [loading, setLoading] = useState(true);
-  const [user, setUser] = useState(null);
   const navigate = useNavigate();
-    const { username } = useContext(AuthContext);
-
 
   useEffect(() => {
     const init = async () => {
       const token = localStorage.getItem("token");
       const isAdmin = localStorage.getItem("isAdmin") === "true";
+
       if (!token) return navigate("/login");
       if (isAdmin) return navigate("/admin-dashboard");
+
       try {
-        const data = await getMyProfile();
-        setUser(data.user);
+        // If user is already in context, skip API fetch
+        if (!user) {
+          const data = await getMyProfile();
+          setUser(data.user);
+        }
+      } catch (err) {
+        console.error("Failed to fetch user profile:", err);
       } finally {
         setLoading(false);
       }
     };
     init();
-  }, [navigate]);
+  }, [navigate, user, setUser]);
 
   return (
-    <div className="container">
-      <main>
+    <div className="user-dashboard-container">
+      <main className="user-dashboard-main">
         {loading ? (
           <p>Loading your dashboard...</p>
         ) : (
           <>
-            <section className="card" style={{ marginBottom: 20 }}>
-              <h2>Welcome, {username?.name || "Learner"} 👋</h2>
+            <section className="user-card">
+              <h2>Welcome, {user?.name || "Learner"} 👋</h2>
               <p className="muted">
                 Jump back into your learning journey or discover new courses recommended for you.
               </p>
-              <div style={{ marginTop: 12, display: "flex", gap: "12px" }}>
+              <div className="user-actions">
                 <Link to="/my-courses" className="btn">
                   My Courses
                 </Link>
@@ -53,7 +58,7 @@ export default function UserDashboard() {
               </div>
             </section>
 
-            <section className="card">
+            <section className="user-card">
               <h2>Tips</h2>
               <p className="muted">
                 Track progress on enrolled courses from <strong>My Courses</strong>.  
