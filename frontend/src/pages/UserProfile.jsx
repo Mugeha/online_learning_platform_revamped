@@ -1,24 +1,26 @@
 // src/pages/UserProfile.jsx
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import { getMyProfile, updateUserProfile } from "../api";
+import { AuthContext } from "../contexts/AuthContext";
 import "../styles/global.css";
 
 export default function UserProfile() {
+  const { user, setUser } = useContext(AuthContext);
   const [loading, setLoading] = useState(true);
-  const [user, setUser] = useState(null);
   const [form, setForm] = useState({ name: "", email: "", password: "" });
   const [message, setMessage] = useState("");
 
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const data = await getMyProfile();
-        setUser(data.user);
-        setForm({
-          name: data.user.name,
-          email: data.user.email,
-          password: "",
-        });
+        // If user exists in context, use it; else fetch
+        if (user) {
+          setForm({ name: user.name, email: user.email, password: "" });
+        } else {
+          const data = await getMyProfile();
+          setUser(data.user);
+          setForm({ name: data.user.name, email: data.user.email, password: "" });
+        }
       } catch (err) {
         console.error("Failed to load profile:", err);
       } finally {
@@ -26,7 +28,7 @@ export default function UserProfile() {
       }
     };
     fetchProfile();
-  }, []);
+  }, [user, setUser]);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -37,7 +39,8 @@ export default function UserProfile() {
     setMessage("");
     try {
       const updated = await updateUserProfile(form);
-      setUser(updated.user);
+      setUser(updated.user); // ✅ update context so dashboard reflects instantly
+      setForm({ ...form, password: "" }); // clear password field after update
       setMessage("✅ Profile updated successfully!");
     } catch (err) {
       console.error(err);
@@ -52,16 +55,7 @@ export default function UserProfile() {
       <main>
         <section className="card">
           <h2>My Profile</h2>
-
-          {/* Show who is logged in */}
-          {user && (
-            <p className="muted">
-              Logged in as <strong>{user.name}</strong> ({user.email})
-            </p>
-          )}
-
           {message && <p className="muted">{message}</p>}
-
           <form onSubmit={handleSubmit} className="form">
             <div className="form-group">
               <label>Name</label>
@@ -93,9 +87,7 @@ export default function UserProfile() {
                 placeholder="Enter new password"
               />
             </div>
-            <button type="submit" className="btn">
-              Update Profile
-            </button>
+            <button type="submit" className="btn">Update Profile</button>
           </form>
         </section>
       </main>

@@ -23,7 +23,7 @@ const userSchema = new mongoose.Schema({
   },
   isAdmin: {
     type: Boolean,
-    default: false // By default, new users are not admins
+    default: true // By default, new users are not admins
   },
   enrolledCourses: [{ type: mongoose.Schema.Types.ObjectId, ref: "Course" }],
 
