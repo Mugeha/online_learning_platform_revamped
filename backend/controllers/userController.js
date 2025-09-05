@@ -26,6 +26,7 @@ const updateUserProfile = asyncHandler(async (req, res) => {
 
   const { name, email, address, currentPassword, newPassword } = req.body;
 
+  // Check for email change and uniqueness
   if (email && email !== user.email) {
     const taken = await User.findOne({ email });
     if (taken) {
@@ -38,6 +39,7 @@ const updateUserProfile = asyncHandler(async (req, res) => {
   if (name) user.name = name;
   if (typeof address !== "undefined") user.address = address;
 
+  // Handle password update
   if (newPassword) {
     if (!currentPassword) {
       res.status(400);
@@ -48,13 +50,16 @@ const updateUserProfile = asyncHandler(async (req, res) => {
       res.status(400);
       throw new Error("Current password is incorrect");
     }
-    user.password = newPassword; // pre-save hook hashes
+    user.password = newPassword; // pre-save hook will hash
   }
 
   await user.save();
+
+  // Fetch sanitized user for response
   const sanitized = await User.findById(user._id).select("-password");
-  res.json(sanitized);
+  res.json({ user: sanitized }); // ✅ wrap response
 });
+
 
 // DELETE /api/users/me
 // @access Private
