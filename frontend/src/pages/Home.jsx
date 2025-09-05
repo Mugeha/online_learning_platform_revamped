@@ -1,7 +1,7 @@
 // src/pages/Home.jsx
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import axios from "axios";
+import { getMyProfile } from "../api"; // ✅ use api helper
 import "../styles/global.css";
 import "../styles/auth.css"; // for button styles
 
@@ -14,10 +14,7 @@ const Home = () => {
         const token = localStorage.getItem("token");
         if (!token) return;
 
-        const { data } = await axios.get("/api/users/profile", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-
+        const data = await getMyProfile(); // ✅ use helper, automatically calls backend (5000)
         setUser(data.user);
       } catch (error) {
         console.error("Error fetching profile:", error);

@@ -25,7 +25,9 @@ const PrivateRoute = ({ children }) => {
 // Admin-only route
 const AdminRoute = ({ children }) => {
   const token = localStorage.getItem("token");
-  const isAdmin = localStorage.getItem("isAdmin") === "true";
+  const user = JSON.parse(localStorage.getItem("user"));
+  const isAdmin = user?.isAdmin;
+
   return token && isAdmin ? children : <Navigate to="/" />;
 };
 

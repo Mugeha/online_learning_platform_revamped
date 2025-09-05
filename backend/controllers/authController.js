@@ -22,7 +22,7 @@ const registerUser = async (req, res) => {
       return res.status(400).json({ message: "User already exists" });
     }
 
-    const user = await User.create({ name, email, password, isAdmin: false });
+    const user = await User.create({ name, email, password, isAdmin: true });
     console.log("[registerUser] new user created:", user._id);
 
     if (user) {

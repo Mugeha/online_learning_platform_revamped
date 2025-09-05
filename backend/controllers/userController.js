@@ -9,8 +9,10 @@ const getUserProfile = asyncHandler(async (req, res) => {
     res.status(404);
     throw new Error("User not found");
   }
-  res.json(user);
+
+  res.json({ user }); // ✅ always wrap in { user: ... }
 });
+
 
 // PUT /api/users/profile
 // @access Private
